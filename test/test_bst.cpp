@@ -49,6 +49,9 @@ void test_bst(BST<T> &bst, vector<T> v, unsigned int expected_height) {
     for (T i : v) {
         REQUIRE(*(it++) == i);
     }
+
+    REQUIRE(it == end);
+
 }
 
 TEST_CASE("Building BST with integers") {

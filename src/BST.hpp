@@ -9,6 +9,7 @@
 #define BST_HPP
 
 #include <iostream>
+#include <algorithm>
 
 #include "BSTIterator.hpp"
 #include "BSTNode.hpp"
@@ -40,7 +41,9 @@ public:
      * Default destructor. Frees all memory allocated by this BST.
      */
     // TODO
-    virtual ~BST() {}
+    virtual ~BST() {
+	deleteAll(root);
+    }
 
     /** 
      * Inserts the given item into this BST.
@@ -57,7 +60,55 @@ public:
      *     this function, false otherwise (e.g. item is a duplicate).
      */
     // TODO
-    virtual bool insert(const Data &item) {}
+    virtual bool insert(const Data &item){
+	
+	int currHeight = 1;
+	
+	/* if empty tree */
+	if(!root){
+	    root = new BSTNode<Data> (item);
+	    isize++;
+	    iheight = 1;
+	    return true;
+	}    	
+	BSTNode<Data> * current = root;
+	BSTNode<Data> * prev = nullptr;
+
+	/* sets prev ptr to last comparison node */
+	while(current){
+	    if(item < current->data){
+	    	prev = current;
+		current = current->left;
+	    }
+	    else if( current->data < item){
+	    	prev = current;
+		current = current->right;
+	    }
+	    else{
+	    	return false;
+	    }
+	    currHeight++;
+
+	}
+
+	/* compares data to parent of node to be inserted */
+	if( item < prev->data){
+	    prev->left = new BSTNode<Data> (item);
+	    prev->left->parent = prev; 
+	}
+	else{
+	    prev->right = new BSTNode<Data> (item);
+	    prev->right->parent = prev;
+	}
+
+	/* sets new height of tree */
+	if(iheight < currHeight){
+	    iheight = currHeight;  
+	}
+
+	isize++;
+	return true; 
+    }
 
     /**
      * Searches for the given item in this BST.
@@ -74,31 +125,61 @@ public:
      *     past the last node in this BST if item is not found.
      */
     // TODO
-    virtual iterator find(const Data &item) const {}
+    virtual iterator find(const Data &item) const {
 
+	auto it = begin();
+
+	/* checks every node in ascending order */	
+	while(it != end()){
+	   if(*it == item){
+		return it; 
+	   }
+	   ++it;
+	}
+	return it; 
+    }		
     /** 
      * Returns the number of items currently in the BST.
      */
     // TODO
-    unsigned int size() const {}
+    unsigned int size() const {
+	return isize;
+    }
 
     /** 
      * Returns the height of this BST.
      */
     // TODO
-    unsigned int height() const {}
+    unsigned int height() const {
+	if(empty()){
+	    return 0;
+	}
+	return iheight;
+    }
 
     /** 
      * Returns true if this BST is empty, false otherwise.
      */
     // TODO
-    bool empty() const {}
+    bool empty() const {
+	if(!root){
+	    return true;
+	}
+	return false;
+    }
 
     /** 
      * Returns an iterator pointing to the first item in the BST (not the root).
      */
     // TODO
-    iterator begin() const {}
+    iterator begin() const {
+
+        BSTNode<Data> *first = root; 
+	while(first->left != nullptr){
+	    first = first ->left;
+        }
+	return typename BST<Data>:: iterator(first);
+    }
 
     /** 
      * Returns an iterator pointing past the last item in the BST.
@@ -135,7 +216,15 @@ private:
      *     recurse left - print node data - recurse right
      */
     // TODO
-    static void inorder(BSTNode<Data> *n) {}
+    static void inorder(BSTNode<Data> *n) {
+	if(!n){
+	    return;
+	}
+	
+	inorder(n->left);
+	cout << n->data << endl; 
+	inorder(n->right);
+    }
 
     /* 
      * Do a postorder traversal, deleting nodes.
@@ -146,7 +235,16 @@ private:
      *     recurse left - recurse right - delete node
      */
     // TODO
-    static void deleteAll(BSTNode<Data> *n) {}
-};
+    static void deleteAll(BSTNode<Data> *n) {
+	if(!n){
+	    return; 
+	}
+	deleteAll(n->left);
+	deleteAll(n->right);
+    
+	delete n;
+	return;
+	}
 
+};
 #endif  // BST_HPP

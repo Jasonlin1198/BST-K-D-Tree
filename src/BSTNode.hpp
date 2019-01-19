@@ -39,7 +39,33 @@ public:
      *     or 0 if there is none (this is the last node in the BST).
      */
     // TODO
-    BSTNode<Data> *successor() {}
+    BSTNode<Data> *successor() {
+
+	BSTNode<Data> * curr = this;
+
+	if(!curr){
+	    return 0;
+	}
+
+	/* Finds smallest node in right subtree if has a right child */
+	if(curr->right){
+	    curr = curr->right;
+	    while(curr->left){
+	        curr = curr->left;	
+	    }
+	    return curr; 
+	}
+	/* Node does not have right child*/
+	BSTNode<Data> * top = this->parent; 
+	
+	/* parent is not null and parent data is less than node */
+	while(top && top->data < data){
+	    /* searches one more layer above*/
+	    top = top->parent;
+	}
+	return top; 
+    
+    }
 };
 
 /** 
