@@ -14,6 +14,7 @@
 #include <limits>
 #include <vector>
 
+
 #include "BST.hpp"
 
 using namespace std;
@@ -52,7 +53,10 @@ public:
 
     /** Returns the square of the Euclidean distance between points p1 and p2 */
     // TODO
-    static double squareDistance(const Point &p1, const Point &p2) {}
+    static double squareDistance(const Point &p1, const Point &p2) {
+        double dist = (pow(p1.x-p2.x, 2) + pow(p1.y-p2.y,2) );
+	return dist; 
+    }
 };
 
 /** 
@@ -95,7 +99,17 @@ public:
      *     the number of elements in the built KDT
      */
     // TODO
-    virtual unsigned int build(vector<Point> &points) {}
+    virtual unsigned int build(vector<Point> &points) {
+
+        root  = buildSubset(points, 0, points.size(), 0, 1);
+
+	isize = points.size();
+
+	iheight = log2(points.size())+1;        
+
+	return isize;
+
+    }
 
     /** 
      * Find the nearest neighbor to a given point.
@@ -116,7 +130,23 @@ public:
      *     if tree is empty
      */
     // TODO
-    virtual iterator findNearestNeighbor(const Point &p) const {}
+    virtual iterator findNearestNeighbor(const Point &p) const {
+	/* checks if tree is empty */
+	if(root == nullptr){
+            return typename BST<Point>:: iterator(0);
+	}
+
+	BSTNode<Point> * closestPoint = nullptr; 
+
+	/* sets initial smallest distance to distance from root */
+	double smallestDistance = std::numeric_limits<double>::max();
+	
+	findNNHelper(root, p, &smallestDistance, &closestPoint, 0); 
+
+	return typename BST<Point>:: iterator(closestPoint); 
+
+        
+    }
 
     /** 
      * For the kd-tree, the find method should not be used. Use the function
@@ -162,7 +192,39 @@ private:
                                 unsigned int start,
                                 unsigned int end, 
                                 unsigned int dimension,
-                                unsigned int height) {}
+                                unsigned int height) {
+	/* checks if vector is empty */
+	if(points.size() == 0){
+	    return nullptr;
+	}
+
+	/* checks if no more elements to build */
+	if( start == end ){
+	    return nullptr;
+	}
+
+	if(dimension == 0){
+	    /* sorts points in vector by x coord */	
+ 	    sort(points.begin() + start, points.begin()+ end, xLessThan);
+	    dimension = 1;
+	}
+
+	if(dimension == 1){
+	    /* sorts points in vector by y coord */
+	    sort(points.begin() + start, points.begin() + end, yLessThan);
+	    dimension = 0;
+	}
+	/* gets median index */
+	int median = (start + end )/2;
+
+	BSTNode<Point> * node = new BSTNode<Point>(points[median]);
+	
+	node->left = buildSubset(points, 0 , median , dimension, height + 1); 
+        node->right = buildSubset(points, median + 1, end, dimension, height + 1);
+
+	return node; 
+
+    }
 
     /* 
      * Find the node in the subtree that is closest to the given point p
@@ -186,7 +248,70 @@ private:
                       const Point &queryPoint,
                       double *smallestSquareDistance,
                       BSTNode<Point> **closestPoint,
-                      unsigned int dimension) const {}
-};
+                      unsigned int dimension) const {
+        
+	/* if null or leaf node is reached, set to parent */ 
+	if(node == nullptr){
+	    return;
+	}
+	
+	/* false if left, true if right */
+	bool subtree;
+	double coordDist;
+	double dist; 
+        /* compares x-coord and moves down the tree*/
+	if(dimension  == 0 ){
+	    if(xLessThan(node->data , queryPoint)){
+	        findNNHelper(node->right, queryPoint, smallestSquareDistance, closestPoint, dimension);
+		subtree = true;
+	    } 	    
+	    else{
+	        findNNHelper(node->left, queryPoint, smallestSquareDistance, closestPoint, dimension);
+		subtree = false;
+	    }
+	    dimension = 1;
 
+	    /* if y-coord, calculates y dimension distance */
+	    coordDist = pow(node->data.x - queryPoint.x, 2);
+	}
+	/* compares y-coord and moves down the tree*/
+        if(dimension == 1) {
+	    if(yLessThan(node->data , queryPoint)){
+	        findNNHelper(node->right, queryPoint, smallestSquareDistance, closestPoint, dimension);
+		subtree = true;
+	    }
+	    else{
+	        findNNHelper(node->left, queryPoint, smallestSquareDistance, closestPoint, dimension);
+		subtree = false;
+	    }
+	    dimension = 0;
+
+	    /* if y-coord, calculates y dimension distance */
+	    coordDist = pow(node->data.x - queryPoint.x, 2);
+	}
+
+        	
+	/* finds distance between query and current node */
+	dist = Point::squareDistance(queryPoint, node->data);	
+
+	/* sets new smallest dist, sets closest pointer, and moves up node*/
+	if( dist < *smallestSquareDistance ){
+	    *smallestSquareDistance = dist;
+	    *closestPoint = node;
+	}
+	/* distance is smaller in comparison */
+        if( coordDist < *smallestSquareDistance ){
+
+            /* calls on other subtree and tree last went true */
+            if(subtree == true){	    
+                findNNHelper(node->left, queryPoint, smallestSquareDistance, closestPoint, dimension);
+            }
+            else{
+       	        findNNHelper(node->right, queryPoint, smallestSquareDistance, closestPoint, dimension);
+	    }
+	
+	}
+	return;
+    }
+};
 #endif  // KDT_HPP

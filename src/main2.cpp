@@ -83,6 +83,53 @@ int main(int argc, char *argv[]) {
     // TODO your main2 implementation should go here
     //
 
+    KDT tree;
+    string line;
+    vector<Point> vect;
+
+    size_t pos;
+
+    double xPoint;
+    double yPoint;
+    /* gets point from text file */
+    while(getline(in, line)) {
+	
+	xPoint = std::stod(line, &pos);
+        yPoint = std::stod(line.substr(pos));
+
+	/* adds all points in text to vector */
+	vect.push_back(Point(xPoint, yPoint));
+
+    }
+
+    cout << "Size of tree: " << tree.build(vect) << "\n";
+    cout << "Height of tree: " << tree.height() << "\n";
+
+    char response = 'y';
+
+    /* prompts user for a point */
+    while ( response == 'y' ){
+        cout << "Enter coordinate (x y): " << "\n";
+
+	getline(cin, line);
+
+	xPoint = std::stod(line, &pos);
+        yPoint = std::stod(line.substr(pos));
+
+	BSTIterator<Point> closestPoint = tree.findNearestNeighbor(Point(xPoint, yPoint));	
+
+        cout << "Nearest point in tree: " << *closestPoint << "\n";
+
+        cout << "Search again? (y/n)" << "\n";
+	cin >> response;
+        cin.ignore();
+
+	if (response != 'n' && response != 'y'){
+	    cout << "invalid response, exiting..." << endl;
+	    break;
+	}
+    }
+
     if (in.is_open()) {
         in.close();
     }

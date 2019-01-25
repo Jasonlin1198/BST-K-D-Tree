@@ -57,6 +57,20 @@ TEST_CASE("Testing KDT implementation") {
         test_kdt(tree, points, 1);
         REQUIRE(*(tree.findNearestNeighbor(Point(1, 1))) == Point(0, 0));
     }
+ 
+    SECTION("adding two points") {
+	vector<Point> points = {{0,0},{1,1}};
+	test_kdt(tree, points, 2);
+	REQUIRE(*(tree.findNearestNeighbor(Point(2,2))) == Point(1,1));
+    }
+
+    SECTION("in class example tree leaf node is NN") {
+	vector<Point> points = {{4,2},{2,1},{0,0}, {3,3},{9,4},{6,1},{10,5}};
+	test_kdt(tree, points, 3);
+        INFO("Searching for nearest neighbors");
+        REQUIRE(*(tree.findNearestNeighbor(Point(4,3))) == Point(4,2));
+
+    }
 
     SECTION("adding many points") {
         vector<Point> points = {{1.0, 3.2}, {3.2, 1.0}, {5.7, 3.2}, 
