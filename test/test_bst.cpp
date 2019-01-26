@@ -57,6 +57,11 @@ void test_bst(BST<T> &bst, vector<T> v, unsigned int expected_height) {
 TEST_CASE("Building BST with integers") {
     BST<int> bst;
 
+    SECTION("empty tree"){
+	test_bst<int>(bst, vector<int>{}, 0);
+	REQUIRE_FALSE(bst.find(0) == bst.begin());
+    }
+
     SECTION("adding one element to BST") {
         test_bst<int>(bst, vector<int>{1}, 1);
         REQUIRE_FALSE(bst.insert(1));

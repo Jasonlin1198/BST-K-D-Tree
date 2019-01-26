@@ -173,12 +173,19 @@ public:
      */
     // TODO
     iterator begin() const {
-
-        BSTNode<Data> *first = root; 
-	while(first->left != nullptr){
-	    first = first ->left;
-        }
+	if(root != nullptr){
+	
+            BSTNode<Data> *first = root; 
+	    while(first->left != nullptr){
+	        first = first ->left;
+            }
 	return typename BST<Data>:: iterator(first);
+	
+	}
+	else{
+	    return typename BST<Data>:: iterator(0);
+	}
+
     }
 
     /** 

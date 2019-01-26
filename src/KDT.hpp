@@ -275,7 +275,7 @@ private:
 	    coordDist = pow(node->data.x - queryPoint.x, 2);
 	}
 	/* compares y-coord and moves down the tree*/
-        if(dimension == 1) {
+        if (dimension == 1) {
 	    if(yLessThan(node->data , queryPoint)){
 	        findNNHelper(node->right, queryPoint, smallestSquareDistance, closestPoint, dimension);
 		subtree = true;
