@@ -127,16 +127,26 @@ public:
     // TODO
     virtual iterator find(const Data &item) const {
 
-	auto it = begin();
-
-	/* checks every node in ascending order */	
-	while(it != end()){
-	   if(*it == item){
-		return it; 
-	   }
-	   ++it;
+	if(!root){
+	    return typename BST<Data>:: iterator(0);
 	}
-	return it; 
+	
+	BSTNode<Data> * current = root;
+	while(current){
+	    if(item < current->data){
+		current = current->left;
+	    }
+	    else if( current->data < item){
+		current = current->right;
+	    }
+	    else{
+	    	return typename BST<Data>:: iterator(current);
+
+	    }
+	}
+
+	return typename BST<Data>:: iterator(0);
+    
     }		
     /** 
      * Returns the number of items currently in the BST.
@@ -173,18 +183,9 @@ public:
      */
     // TODO
     iterator begin() const {
-	if(root != nullptr){
-	
-            BSTNode<Data> *first = root; 
-	    while(first->left != nullptr){
-	        first = first ->left;
-            }
-	return typename BST<Data>:: iterator(first);
-	
-	}
-	else{
-	    return typename BST<Data>:: iterator(0);
-	}
+
+	BSTNode<Data>* curr = first(root);
+	return typename BST<Data>::iterator(curr);
 
     }
 

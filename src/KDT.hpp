@@ -101,7 +101,7 @@ public:
     // TODO
     virtual unsigned int build(vector<Point> &points) {
 
-        root  = buildSubset(points, 0, points.size(), 0, 1);
+        root  = buildSubset(points, 0 , points.size(), 0, 1);
 
 	isize = points.size();
 
@@ -193,15 +193,16 @@ private:
                                 unsigned int end, 
                                 unsigned int dimension,
                                 unsigned int height) {
-	/* checks if vector is empty */
+	/* checks if vector is empty 
 	if(points.size() == 0){
 	    return nullptr;
 	}
-
+*/
 	/* checks if no more elements to build */
-	if( start == end ){
+	if( start == end){
 	    return nullptr;
 	}
+	else{
 
 	if(dimension == 0){
 	    /* sorts points in vector by x coord */	
@@ -209,7 +210,7 @@ private:
 	    dimension = 1;
 	}
 
-	if(dimension == 1){
+	else {
 	    /* sorts points in vector by y coord */
 	    sort(points.begin() + start, points.begin() + end, yLessThan);
 	    dimension = 0;
@@ -219,11 +220,11 @@ private:
 
 	BSTNode<Point> * node = new BSTNode<Point>(points[median]);
 	
-	node->left = buildSubset(points, 0 , median , dimension, height + 1); 
-        node->right = buildSubset(points, median + 1, end, dimension, height + 1);
+	node->left = buildSubset(points, start , median , dimension, height); 
+        node->right = buildSubset(points, median + 1, end, dimension, height);
 
 	return node; 
-
+	}
     }
 
     /* 
@@ -255,12 +256,23 @@ private:
 	    return;
 	}
 	
+	if(queryPoint == node->data){
+	    *smallestSquareDistance = 0;
+	    *closestPoint = node;
+	    return;
+	}
+
 	/* false if left, true if right */
 	bool subtree;
 	double coordDist;
 	double dist; 
+
+
         /* compares x-coord and moves down the tree*/
 	if(dimension  == 0 ){
+
+	    dimension = 1;
+
 	    if(xLessThan(node->data , queryPoint)){
 	        findNNHelper(node->right, queryPoint, smallestSquareDistance, closestPoint, dimension);
 		subtree = true;
@@ -269,13 +281,14 @@ private:
 	        findNNHelper(node->left, queryPoint, smallestSquareDistance, closestPoint, dimension);
 		subtree = false;
 	    }
-	    dimension = 1;
 
 	    /* if y-coord, calculates y dimension distance */
 	    coordDist = pow(node->data.x - queryPoint.x, 2);
 	}
 	/* compares y-coord and moves down the tree*/
-        if (dimension == 1) {
+        if(dimension == 1) {
+	    dimension = 0;
+
 	    if(yLessThan(node->data , queryPoint)){
 	        findNNHelper(node->right, queryPoint, smallestSquareDistance, closestPoint, dimension);
 		subtree = true;
@@ -284,15 +297,17 @@ private:
 	        findNNHelper(node->left, queryPoint, smallestSquareDistance, closestPoint, dimension);
 		subtree = false;
 	    }
-	    dimension = 0;
 
 	    /* if y-coord, calculates y dimension distance */
 	    coordDist = pow(node->data.x - queryPoint.x, 2);
 	}
 
-        	
+	
+
 	/* finds distance between query and current node */
 	dist = Point::squareDistance(queryPoint, node->data);	
+
+
 
 	/* sets new smallest dist, sets closest pointer, and moves up node*/
 	if( dist < *smallestSquareDistance ){
